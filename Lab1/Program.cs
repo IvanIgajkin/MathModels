@@ -1,6 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using MathNet.Numerics.LinearAlgebra;
+﻿using MathNet.Numerics.LinearAlgebra;
 
 var years = new []{1902, 1907, 1912, 1917};
 var population = new []{1_174_700, 1_345_700, 1_617_157, 1_854_400};
