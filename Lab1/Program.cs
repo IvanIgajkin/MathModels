@@ -5,21 +5,23 @@ using MathNet.Numerics.LinearAlgebra;
 var years = new []{1902, 1907, 1912, 1917};
 var population = new []{1_174_700, 1_345_700, 1_617_157, 1_854_400};
 
-Console.WriteLine($"Population in 1910: MathSquares - {SolveByMinSquares(1910)}\tLagranzhPolinom - {SolveByLagrangePolynomial(1910)}");
-Console.WriteLine($"Population in 1916: MathSquares - {SolveByMinSquares(1916)}\tLagranzhPolinom - {SolveByLagrangePolynomial(1916)}");
+Console.WriteLine($"Population in 1910: MathSquares - {SolveByMinSquares(1910)}\t" +
+                  $"LagrangePolynomial - {SolveByLagrangePolynomial(1910)}");
+Console.WriteLine($"Population in 1916: MathSquares - {SolveByMinSquares(1916)}\t" +
+                  $"LagrangePolynomial - {SolveByLagrangePolynomial(1916)}");
 
-double SolveByMinSquares(int x) => 
-	MinSquares(years.Select(x => x - 1900), population.Select(y => y / 1E6))(x - 1900);
+double SolveByMinSquares(int arg) => 
+	MinSquares(years.Select(x => x - 1900), population.Select(y => y / 1E6))(arg - 1900) * 1E6;
 
-double SolveByLagrangePolynomial(int x) => 
-	LagrangePolynomial(years.Select(x => x - 1900), population.Select(y => y / 1E6))(x - 1900);
+double SolveByLagrangePolynomial(int arg) => 
+	LagrangePolynomial(years.Select(x => x - 1900), population.Select(y => y / 1E6))(arg - 1900) * 1E6;
 
 Func<int, double> MinSquares<TX, TY>(IEnumerable<TX> xData, IEnumerable<TY> yData)
 {
-	var x = xData.Select(xi => Convert.ToDouble(xi));
-	var y = yData.Select(yi => Convert.ToDouble(yi));
+	var x = xData.Select(xi => Convert.ToDouble(xi)).ToArray();
+	var y = yData.Select(yi => Convert.ToDouble(yi)).ToArray();
 	
-	int n = x.Count();
+	int n = x.Length;
 
 	Vector<double> FindCoefficients()
 	{
@@ -29,7 +31,7 @@ Func<int, double> MinSquares<TX, TY>(IEnumerable<TX> xData, IEnumerable<TY> yDat
 			));
 	
 		var b = Vector<double>.Build.DenseOfEnumerable(Enumerable.Range(0, n)
-			.Select(degree => y.Select((yi, i) => yi * Math.Pow(x.ElementAt(i), n - 1 - degree)).Sum()));
+			.Select(degree => y.Select((yi, i) => yi * Math.Pow(x[i], n - 1 - degree)).Sum()));
 
 		if (A == null || b == null)
 		{
@@ -46,11 +48,11 @@ Func<int, double> MinSquares<TX, TY>(IEnumerable<TX> xData, IEnumerable<TY> yDat
 
 Func<int, double> LagrangePolynomial<TX, TY>(IEnumerable<TX> xData, IEnumerable<TY> yData)
 {
-	var x = xData.Select(xi => Convert.ToDouble(xi));
-	var y = yData.Select(yi => Convert.ToDouble(yi));
+	var x = xData.Select(xi => Convert.ToDouble(xi)).ToArray();
+	var y = yData.Select(yi => Convert.ToDouble(yi)).ToArray();
 
 	return arg => y.Select((yi, i) => yi * x
-			.Select((xj, j) => i == j ? 1.0 : (arg - xj) / (x.ElementAt(i) - xj))
+			.Select((xj, j) => i == j ? 1.0 : (arg - xj) / (x[i] - xj))
 			.Aggregate(1.0, (xl, xr) => xl * xr))
 		.Sum();
 }
